@@ -6,11 +6,13 @@ services:
     container_name: cfg0
     image: mongo
     restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip", "0.0.0.0", "--configsvr", "--replSet", "${CFG_RS}"]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--configsvr", "--replSet", "${CFG_RS}"]
     env_file:
       - .env
     volumes:
       - './int-config-server.sh:/int-config-server.sh'
+    networks:
+      - mongo_sharded_cluster
     
   cfg1:
     hostname: ${CFG_HOST_1}
@@ -19,7 +21,9 @@ services:
     restart: always
     env_file:
       - .env
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip", "0.0.0.0", "--configsvr", "--replSet", "${CFG_RS}"]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--configsvr", "--replSet", "${CFG_RS}"]
+    networks:
+      - mongo_sharded_cluster
 
   cfg2:
     hostname: ${CFG_HOST_2}
@@ -28,4 +32,10 @@ services:
     restart: always
     env_file:
       - .env
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip", "0.0.0.0", "--configsvr", "--replSet", "${CFG_RS}"]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--configsvr", "--replSet", "${CFG_RS}"]
+    networks:
+      - mongo_sharded_cluster
+
+networks:
+  mongo_sharded_cluster: {}
+
