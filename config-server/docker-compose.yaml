@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  cfg0:
+    hostname: ${CFG_HOST_0}
+    container_name: cfg0
+    image: mongo
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip", "0.0.0.0", "--configsvr", "--replSet", "${CFG_RS}"]
+    env_file:
+      - .env
+    volumes:
+      - './int-config-server.sh:/int-config-server.sh'
+    
+  cfg1:
+    hostname: ${CFG_HOST_1}
+    container_name: cfg1
+    image: mongo
+    restart: always
+    env_file:
+      - .env
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip", "0.0.0.0", "--configsvr", "--replSet", "${CFG_RS}"]
+
+  cfg2:
+    hostname: ${CFG_HOST_2}
+    container_name: cfg2
+    image: mongo
+    restart: always
+    env_file:
+      - .env
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip", "0.0.0.0", "--configsvr", "--replSet", "${CFG_RS}"]
