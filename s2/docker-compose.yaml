@@ -1,0 +1,46 @@
+version: '3.7'
+
+services:
+  mongo0:
+    hostname: ${MONGO_HOST_0}
+    container_name: mongo0-s2
+    image: mongo
+    restart: always
+    entrypoint: ["/usr/bin/mongod", "--shardsvr",  "--replSet", "${REPLICA_SET}",  "--bind_ip_all"]
+    env_file:
+      - .env
+    volumes:
+      - '../scripts/init.sh:/scripts/init.sh'
+      - '../scripts/add-shard.sh:/scripts/add-shard.sh'
+    networks:
+      - sharding_net
+    depends_on:
+      - mongo1
+      - mongo2
+    
+  mongo1:
+    hostname: ${MONGO_HOST_1}
+    container_name: mongo1-s2
+    image: mongo
+    restart: always
+    env_file:
+      - .env
+    entrypoint: ["/usr/bin/mongod", "--shardsvr",  "--replSet", "${REPLICA_SET}",  "--bind_ip_all"]
+    networks:
+      - sharding_net
+
+  mongo2:
+    hostname: ${MONGO_HOST_2}
+    container_name: mongo2-s2
+    image: mongo
+    restart: always
+    env_file:
+      - .env
+    entrypoint: ["/usr/bin/mongod", "--shardsvr",  "--replSet", "${REPLICA_SET}",  "--bind_ip_all"]
+    networks:
+      - sharding_net
+
+networks:
+  sharding_net:
+    name: sharding_net
+    driver: bridge

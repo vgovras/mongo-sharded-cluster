@@ -1,0 +1,61 @@
+version: '3.7'
+
+services:
+  mongos:
+    hostname: mongos
+    container_name: mongos
+    image: mongo
+    restart: always
+    entrypoint: ["/usr/bin/mongos", "--bind_ip_all", "--configdb", "${REPLICA_SET}/${MONGO_HOST_0}:${MONGO_PORT},${MONGO_HOST_1}:${MONGO_PORT},${MONGO_HOST_2}:${MONGO_PORT}"]
+    env_file:
+      - .env
+    networks:
+      - sharding_net
+
+    depends_on:
+      - cfg0
+      - cfg1
+      - cfg2
+
+  cfg0:
+    hostname: ${MONGO_HOST_0}
+    container_name: cfg0
+    image: mongo
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--configsvr", "--replSet", "${REPLICA_SET}"]
+    env_file:
+      - .env
+    volumes:
+      - '../scripts/init.sh:/scripts/init.sh'
+    networks:
+      - sharding_net
+    depends_on:
+      - cfg1
+      - cfg2
+    
+  cfg1:
+    hostname: ${MONGO_HOST_1}
+    container_name: cfg1
+    image: mongo
+    restart: always
+    env_file:
+      - .env
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--configsvr", "--replSet", "${REPLICA_SET}"]
+    networks:
+      - sharding_net
+
+  cfg2:
+    hostname: ${MONGO_HOST_2}
+    container_name: cfg2
+    image: mongo
+    restart: always
+    env_file:
+      - .env
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--configsvr", "--replSet", "${REPLICA_SET}"]
+    networks:
+      - sharding_net
+
+networks:
+  sharding_net:
+    name: sharding_net
+    driver: bridge
